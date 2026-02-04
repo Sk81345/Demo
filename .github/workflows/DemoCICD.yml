@@ -24,9 +24,8 @@ jobs:
     steps:
       - name: Build step
         run: echo "Building application (parallel job)"
-
   test:
-    name: Test Job (Matrix: Node versions)
+  name: "Test Job (Matrix: Node versions)"
     needs: build
     runs-on: ubuntu-latest
     strategy:
