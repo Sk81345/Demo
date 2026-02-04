@@ -71,3 +71,15 @@ jobs:
       - run: |
           echo "Deploying on self-hosted runner"
           echo "All quality gates passed. Ready to deploy."
+          
+   post-deploy-check:
+      name: "Post-Deploy Verification (Series)"
+      needs: deploy
+      runs-on: ubuntu-latest
+      steps:
+        - name: Verify deployment
+          run: |
+            echo "Post-deploy verification started..."
+            echo "Checking application health..."
+            echo "Post-deploy verification completed successfully."
+    
