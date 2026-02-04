@@ -63,3 +63,20 @@ jobs:
 
   deploy:
     name: Deploy Job (Self-hosted Runner)
+    needs:
+      - test
+      - compatibility-check
+      - container-demo
+    if: github.ref == 'refs/heads/main'
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Secure deploy step
+        run: |
+          echo "Deploying on self-hosted runner"
+          echo "All quality gates passed. Ready to deploy."
