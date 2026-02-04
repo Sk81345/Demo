@@ -1,0 +1,76 @@
+name: Demo CI Pipeline (Advanced End-to-End)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  lint:
+    name: "Lint Job (Parallel)"
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running lint checks (parallel job)"
+
+  build:
+    name: "Build Job (Parallel)"
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Building application (parallel job)"
+
+  test:
+    name: "Test Job (Matrix: Node versions)"
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18, 20]
+    steps:
+      - run: echo "Running tests on Node ${{ matrix.node-version }}"
+
+  compatibility-check:
+    name: "Compatibility Check (Matrix: OS)"
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - run: echo "Running on ${{ matrix.os }}"
+
+  container-demo:
+    name: "Container Job (Hello World)"
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:3.20
+    steps:
+      - run: |
+          echo "Hello from inside a container!"
+          cat /etc/os-release
+
+  deploy:
+    name: "Deploy Job (Self-hosted Runner)"
+    needs:
+      - test
+      - compatibility-check
+      - container-demo
+    if: github.ref == 'refs/heads/main'
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - run: |
+          echo "Deploying on self-hosted runner"
+          echo "All quality gates passed. Ready to deploy."
